@@ -9,14 +9,17 @@
     "predev": "convex dev --until-success && convex dev --once --run-sh \"node setup.mjs --once\" && convex dashboard",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ignore-pattern \"convex/_generated/**\""
+    "lint": "eslint . --ignore-pattern \"convex/_generated/**\"",
+    "lint:fix": "oxlint --fix"
   },
   "dependencies": {
     "@convex-dev/auth": "^0.0.91",
     "convex": "^1.33.1",
     "next": "16.1.7",
+    "oxfmt": "^0.41.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "turbo": "^2.8.20"
   },
   "devDependencies": {
     "@convex-dev/eslint-plugin": "^1.2.0",
@@ -27,7 +30,9 @@
     "dotenv": "^17.3.1",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.1.6",
+    "husky": "^9.1.7",
     "npm-run-all2": "^8.0.4",
+    "oxlint": "^1.56.0",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3"
