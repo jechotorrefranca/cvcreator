@@ -1,4 +1,4 @@
-import { FormEvent, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Header from "./Header";
 import { Button } from "./ui/button";
 import {
@@ -13,12 +13,20 @@ import {
 } from "./ui/sheet";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { mutation } from "@/convex/_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { Field, FieldDescription, FieldLabel } from "./ui/field";
+import { Input } from "./ui/input";
+import { toast, Toaster } from "sonner";
+import { BasicInfo } from "./types";
 
-export default function Inputs() {
+interface InputProps {
+  infos?: BasicInfo | null;
+}
+
+export default function Inputs({ infos }: InputProps) {
   const generateUploadUrl = useMutation(api.mutations.mutations.generateUploadUrl);
   const uploadImage = useMutation(api.mutations.mutations.upsertImage);
+  const uploadInfo = useMutation(api.mutations.mutations.upsertBasicInfo);
+
   const userId = useQuery(api.query.queries.getUser);
   const pfp = useQuery(api.query.queries.getPfp, userId ? { userId: userId._id } : "skip");
 
@@ -26,6 +34,25 @@ export default function Inputs() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const [currentSelected, setCurrentSelected] = useState("");
+
+  console.log("WAWWW", infos);
+
+  //   Basic info
+  const [basicInfo, setBasicInfo] = useState({
+    name: infos?.name || "",
+    email: infos?.email || "",
+    phone: infos?.contactNumber || "",
+    address: infos?.location || "",
+  });
+
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+
+    setBasicInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSave = () => {
     console.log("AAAAAAAAAAAAAAa", selectedImage);
@@ -89,8 +116,28 @@ export default function Inputs() {
     imageInput.current!.value = "";
   }
 
-  function handleSaveInformation() {
-    console.log("inpo");
+  async function handleSaveInformation() {
+    if (!userId) {
+      console.log("User not logged in");
+      return;
+    }
+
+    try {
+      await uploadInfo({
+        userId: userId._id,
+        name: basicInfo.name,
+        email: basicInfo.email,
+        contactNumber: basicInfo.phone,
+        location: basicInfo.address,
+      });
+    } catch (e) {
+      toast.error("Failed to Save");
+      console.error(e);
+    }
+
+    console.log("sucecss");
+
+    toast.success("Successfully Saved!");
   }
 
   function handleSaveBackground() {
@@ -192,7 +239,7 @@ export default function Inputs() {
                       <div className="pt-5 flex flex-col gap-5 items-center">
                         <img
                           src={selectedImage ? URL.createObjectURL(selectedImage) : pfp?.imageUrl}
-                          className="w-55 h-55 object-cover rounded-full bg-white"
+                          className="w-55 h-55 object-cover rounded-full bg-white  border border-black"
                         />
                         <div className="w-fit">
                           <Button>
@@ -205,6 +252,59 @@ export default function Inputs() {
                           </Button>
                         </div>
                       </div>
+                    </div>
+                  </>
+                );
+
+              case "basic_info":
+                return (
+                  <>
+                    <div className="px-5">
+                      <Field>
+                        <Header name="Basic Information" />
+                        <div className="flex flex-col gap-5">
+                          <div>
+                            <FieldLabel>Name</FieldLabel>
+                            <Input
+                              name="name"
+                              placeholder="John Doe"
+                              value={basicInfo.name}
+                              onChange={handleChange}
+                            />
+                          </div>
+
+                          <div>
+                            <FieldLabel>Email</FieldLabel>
+                            <Input
+                              name="email"
+                              type="email"
+                              placeholder="johndoe@gmail.com"
+                              value={basicInfo.email}
+                              onChange={handleChange}
+                            />
+                          </div>
+
+                          <div>
+                            <FieldLabel>Contact Number</FieldLabel>
+                            <Input
+                              name="phone"
+                              placeholder="+63 912 345 6789"
+                              value={basicInfo.phone}
+                              onChange={handleChange}
+                            />
+                          </div>
+
+                          <div>
+                            <FieldLabel>Address</FieldLabel>
+                            <Input
+                              name="address"
+                              placeholder="123 Street"
+                              value={basicInfo.address}
+                              onChange={handleChange}
+                            />
+                          </div>
+                        </div>
+                      </Field>
                     </div>
                   </>
                 );
@@ -230,6 +330,7 @@ export default function Inputs() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
+      <Toaster position="top-center" />
     </div>
   );
 }

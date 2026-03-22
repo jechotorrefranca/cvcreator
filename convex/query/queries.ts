@@ -24,3 +24,19 @@ export const getPfp = query({
     return pfp;
   },
 });
+
+export const getBasicInfo = query({
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+
+    const info = await ctx.db
+      .query("basicInfo")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+
+    return info;
+  },
+});

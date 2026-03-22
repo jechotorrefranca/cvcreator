@@ -11,7 +11,10 @@ import { api } from "@/convex/_generated/api";
 export default function Home() {
   const userId = useQuery(api.query.queries.getUser);
   const pfp = useQuery(api.query.queries.getPfp, userId ? { userId: userId._id } : "skip");
+  const info = useQuery(api.query.queries.getBasicInfo);
   const people = ["Creola Katherine Johnson: mathematician"];
+
+  console.log(info);
 
   return (
     <div className="bg-white h-screen text-black flex flex-col items-center">
@@ -21,15 +24,13 @@ export default function Home() {
             <AvatarImage src={pfp?.imageUrl} />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
-          <h1 className="text-white">Welcome!</h1>
+          <h1 className="text-white">Welcome! {info?.name}</h1>
         </div>
         <SignOutButton />
       </div>
 
       <div className="flex justify-around p-5 w-full overflow-auto">
-        <div className="mt-25">
-          <Inputs />
-        </div>
+        <div className="mt-25">{<Inputs infos={info} />}</div>
 
         <div className="w-[49.61rem] h-[70.16rem] bg-gray-100 mt-25">
           <div className="w-full h-full flex flex-col outline relative">
@@ -39,30 +40,30 @@ export default function Home() {
             />
 
             <div className="bg-[#26202B] h-[15%] w-full flex justify-end  font-poppins font-black">
-              <div className="text-white text-[2.5rem] leading-15 w-[55%] self-center">
-                <h1>JECHO PARAIRO TORREFRANCA</h1>
+              <div className="text-white text-[2.5rem] leading-15 w-[55%] self-center break-word">
+                <h1>{info?.name}</h1>
               </div>
             </div>
 
             <div className="bg-white w-full h-[82%] flex">
-              <div className="w-[45%] pl-15 pt-30 flex flex-col gap-5">
+              <div className="w-[45%] pl-15 pr-2 pt-30 flex flex-col gap-5">
                 <div>
                   <Header name={"My Contact"} />
 
                   <div className="pt-5 flex flex-col gap-3">
-                    <div className="flex gap-3">
-                      <Mail />
-                      {"Email@gmail.com"}
+                    <div className="flex gap-3 break-all">
+                      <Mail className="shrink-0" />
+                      {info?.email}
                     </div>
 
                     <div className="flex gap-3">
-                      <Phone />
-                      {"+63 910 147 7227"}
+                      <Phone className="shrink-0" />
+                      {info?.contactNumber}
                     </div>
 
                     <div className="flex gap-3">
-                      <MapPin />
-                      {"Lolomboy, Bocaue, Bulacan"}
+                      <MapPin className="shrink-0" />
+                      {info?.location}
                     </div>
                   </div>
                 </div>
