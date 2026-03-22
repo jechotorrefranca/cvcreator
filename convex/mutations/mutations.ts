@@ -142,15 +142,6 @@ export const upsertEducBackground = mutation({
   },
 });
 
-// export const educBackground = defineTable({
-//   userId: v.id("users"),
-//   school: v.string(),
-//   background: v.string(),
-//   completed: v.string(),
-//   creation_date: v.number(),
-//   updated_at: v.number(),
-// }).index("by_userId", ["userId"]);
-
 // export const skills = defineTable({
 //   userId: v.id("users"),
 //   skill: v.string(),
