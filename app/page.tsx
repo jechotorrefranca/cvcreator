@@ -1,19 +1,16 @@
 "use client";
-import Image from "next/image";
+
 import SignOutButton from "@/components/SignOutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Header from "@/components/Header";
-import { Dot, Locate, LocateIcon, Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import Inputs from "@/components/Inputs";
 
 export default function Home() {
-  const people = [
-    "Creola Katherine Johnson: mathematician",
-    "Mario José Molina-Pasquel Henríquez: chemist",
-  ];
+  const people = ["Creola Katherine Johnson: mathematician"];
 
   return (
-    <div className="bg-white h-screen text-black flex flex-col items-center">
+    <div className="bg-white h-screen text-black flex flex-col items-center overflow-auto">
       <div className="flex justify-between p-2 min-w-screen bg-gray-200 fixed">
         <div className="flex justify-center items-center gap-2">
           <Avatar size="lg">
