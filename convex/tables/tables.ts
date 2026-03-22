@@ -72,7 +72,9 @@ export const keyResponsibilities = defineTable({
   description: v.string(),
   creation_date: v.number(),
   updated_at: v.number(),
-}).index("by_userId", ["userId"]);
+})
+  .index("by_experienceId", ["experienceId"])
+  .index("by_userId", ["userId"]);
 
 export const awards = defineTable({
   userId: v.id("users"),

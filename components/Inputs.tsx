@@ -13,7 +13,7 @@ import {
 } from "./ui/sheet";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Field, FieldDescription, FieldLabel } from "./ui/field";
+import { Field, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
 import { toast, Toaster } from "sonner";
 import { BasicInfo } from "./types";
@@ -304,6 +304,119 @@ export default function Inputs({ infos }: InputProps) {
                             />
                           </div>
                         </div>
+                      </Field>
+                    </div>
+                  </>
+                );
+
+              case "educ_bg":
+                return (
+                  <>
+                    <div className="px-5">
+                      <Field>
+                        <Header name="Educational Background" />
+                        <div className="flex flex-col gap-5">
+                          <div>
+                            <FieldLabel>Name</FieldLabel>
+                            <Input
+                              name="name"
+                              placeholder="John Doe"
+                              value={basicInfo.name}
+                              onChange={handleChange}
+                            />
+                          </div>
+
+                          <div>
+                            <FieldLabel>Email</FieldLabel>
+                            <Input
+                              name="email"
+                              type="email"
+                              placeholder="johndoe@gmail.com"
+                              value={basicInfo.email}
+                              onChange={handleChange}
+                            />
+                          </div>
+
+                          <div>
+                            <FieldLabel>Contact Number</FieldLabel>
+                            <Input
+                              name="phone"
+                              placeholder="+63 912 345 6789"
+                              value={basicInfo.phone}
+                              onChange={handleChange}
+                            />
+                          </div>
+
+                          <div>
+                            <FieldLabel>Address</FieldLabel>
+                            <Input
+                              name="address"
+                              placeholder="123 Street"
+                              value={basicInfo.address}
+                              onChange={handleChange}
+                            />
+                          </div>
+                        </div>
+                      </Field>
+                    </div>
+                  </>
+                );
+
+              case "skills":
+                return (
+                  <>
+                    <div className="px-5">
+                      <Field>
+                        <Header name="Skills" />
+                        <div className="flex flex-col gap-5"></div>
+                      </Field>
+                    </div>
+                  </>
+                );
+
+              case "language":
+                return (
+                  <>
+                    <div className="px-5">
+                      <Field>
+                        <Header name="Languages" />
+                        <div className="flex flex-col gap-5"></div>
+                      </Field>
+                    </div>
+                  </>
+                );
+
+              case "objective":
+                return (
+                  <>
+                    <div className="px-5">
+                      <Field>
+                        <Header name="Objective" />
+                        <div className="flex flex-col gap-5"></div>
+                      </Field>
+                    </div>
+                  </>
+                );
+
+              case "exp":
+                return (
+                  <>
+                    <div className="px-5">
+                      <Field>
+                        <Header name="Professional Experience" />
+                        <div className="flex flex-col gap-5"></div>
+                      </Field>
+                    </div>
+                  </>
+                );
+
+              case "awards":
+                return (
+                  <>
+                    <div className="px-5">
+                      <Field>
+                        <Header name="Awards and Recognitions" />
+                        <div className="flex flex-col gap-5"></div>
                       </Field>
                     </div>
                   </>
