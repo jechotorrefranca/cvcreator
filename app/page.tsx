@@ -4,6 +4,7 @@ import SignOutButton from "@/components/SignOutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Header from "@/components/Header";
 import { Dot, Locate, LocateIcon, Mail, MapPin, Phone } from "lucide-react";
+import Inputs from "@/components/Inputs";
 
 export default function Home() {
   const people = [
@@ -25,13 +26,15 @@ export default function Home() {
       </div>
 
       <div className="flex justify-around w-full">
-        <div className="mt-25">This is the left side</div>
+        <div className="mt-25">
+          <Inputs />
+        </div>
 
         <div className="w-[49.61rem] h-[70.16rem] bg-gray-100 mt-25">
           <div className="w-full h-full flex flex-col outline relative">
             <img
               src="pfpDefault.png"
-              className="w-55 h-55 object-cover rounded-full bg-white absolute left-15 top-12"
+              className="w-55 h-55 object-cover rounded-full bg-white absolute left-18 top-12"
             />
 
             <div className="bg-[#26202B] h-[15%] w-full flex justify-end  font-poppins font-black">
@@ -111,9 +114,35 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="w-[55%] bg-blue-300 pt-5">
+              <div className="w-[55%] bg-blue-300 pt-5 flex flex-col gap-5">
                 <div>
                   <Header name="Objective" />
+                  <div className="pt-5">
+                    admsakf lfk admsakf lfkadmsakf lfkadmsakf lfkadmsakf lfkadmsakf lfkadmsakf lfk
+                    admsakf lfkadmsakf lfkadmsakf lfk
+                  </div>
+                </div>
+
+                <div>
+                  <Header name="Professional Experience" />
+                  <div className="pt-5 text-lg">
+                    admsakf lfk admsakf lfkadmsakf lfkadmsakf lfkadmsakf lfkadmsakf lfkadmsakf lfk
+                    admsakf lfkadmsakf lfkadmsakf lfk
+                  </div>
+                  <div>Key responsibilities:</div>
+                  <ul className="list-disc pl-6 leading-5">
+                    {people.map(() => (
+                      <li className="list-item">
+                        <div>
+                          <p>Key</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <Header name="Awards and Recognitions" />
                   <div className="pt-5">
                     admsakf lfk admsakf lfkadmsakf lfkadmsakf lfkadmsakf lfkadmsakf lfkadmsakf lfk
                     admsakf lfkadmsakf lfkadmsakf lfk
