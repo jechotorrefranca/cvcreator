@@ -110,36 +110,32 @@ export const upsertObjective = mutation({
 
 export const upsertEducBackground = mutation({
   args: {
+    id: v.optional(v.id("educBackground")),
     userId: v.id("users"),
     school: v.string(),
     background: v.string(),
     completed: v.string(),
   },
-
   handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("educBackground")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .unique();
+    const now = Date.now();
 
-    if (existing) {
-      await ctx.db.patch(existing._id, {
+    if (args.id) {
+      await ctx.db.patch(args.id, {
         school: args.school,
         background: args.background,
         completed: args.completed,
-        updated_at: Date.now(),
+        updated_at: now,
       });
-      return;
+    } else {
+      await ctx.db.insert("educBackground", {
+        userId: args.userId,
+        school: args.school,
+        background: args.background,
+        completed: args.completed,
+        creation_date: now,
+        updated_at: now,
+      });
     }
-
-    await ctx.db.insert("educBackground", {
-      userId: args.userId,
-      school: args.school,
-      background: args.background,
-      completed: args.completed,
-      creation_date: Date.now(),
-      updated_at: Date.now(),
-    });
   },
 });
 
@@ -312,5 +308,15 @@ export const upsertAwards = mutation({
       creation_date: Date.now(),
       updated_at: Date.now(),
     });
+  },
+});
+
+//DELETES
+export const deleteEducBackground = mutation({
+  args: {
+    id: v.id("educBackground"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
   },
 });

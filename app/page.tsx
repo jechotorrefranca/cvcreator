@@ -12,6 +12,7 @@ export default function Home() {
   const userId = useQuery(api.query.queries.getUser);
   const pfp = useQuery(api.query.queries.getPfp, userId ? { userId: userId._id } : "skip");
   const info = useQuery(api.query.queries.getBasicInfo);
+  const educ = useQuery(api.query.queries.getEducBg);
   const people = ["Creola Katherine Johnson: mathematician"];
 
   console.log(info);
@@ -30,7 +31,7 @@ export default function Home() {
       </div>
 
       <div className="flex justify-around p-5 w-full overflow-auto">
-        <div className="mt-25">{<Inputs infos={info} />}</div>
+        <div className="mt-25">{<Inputs infos={info} educ={educ} />}</div>
 
         <div className="w-[49.61rem] h-[70.16rem] bg-gray-100 mt-25">
           <div className="w-full h-full flex flex-col outline relative">
@@ -72,12 +73,12 @@ export default function Home() {
                   <Header name="Educational Background" />
                   <div className="pt-5 flex flex-col gap-3">
                     <ul className="list-disc pl-5 gap-5 flex flex-col leading-5">
-                      {people.map(() => (
-                        <li className="list-item">
+                      {educ?.map((ed) => (
+                        <li className="list-item" key={ed._id}>
                           <div>
-                            <p>Tadsd</p>
-                            <p>sadsd</p>
-                            <p>sadsd</p>
+                            <p>{ed.school}</p>
+                            <p className="italic">{ed.background}</p>
+                            <p>Completed in {ed.completed}</p>
                           </div>
                         </li>
                       ))}

@@ -16,16 +16,22 @@ import { api } from "@/convex/_generated/api";
 import { Field, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
 import { toast, Toaster } from "sonner";
-import { BasicInfo } from "./types";
+import { BasicInfo, Educ } from "./types";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from "./ui/item";
+import { Separator } from "./ui/separator";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface InputProps {
   infos?: BasicInfo | null;
+  educ?: Educ[] | null | undefined;
 }
 
-export default function Inputs({ infos }: InputProps) {
+export default function Inputs({ infos, educ }: InputProps) {
   const generateUploadUrl = useMutation(api.mutations.mutations.generateUploadUrl);
   const uploadImage = useMutation(api.mutations.mutations.upsertImage);
   const uploadInfo = useMutation(api.mutations.mutations.upsertBasicInfo);
+  const uploadEduc = useMutation(api.mutations.mutations.upsertEducBackground);
+  const deleteEduc = useMutation(api.mutations.mutations.deleteEducBackground);
 
   const userId = useQuery(api.query.queries.getUser);
   const pfp = useQuery(api.query.queries.getPfp, userId ? { userId: userId._id } : "skip");
@@ -34,8 +40,7 @@ export default function Inputs({ infos }: InputProps) {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const [currentSelected, setCurrentSelected] = useState("");
-
-  console.log("WAWWW", infos);
+  const [editingId, setEditingId] = useState<Id<"educBackground"> | null>(null);
 
   //   Basic info
   const [basicInfo, setBasicInfo] = useState({
@@ -45,10 +50,25 @@ export default function Inputs({ infos }: InputProps) {
     address: infos?.location || "",
   });
 
+  const [educBg, setEducBg] = useState({
+    school: "",
+    background: "",
+    completed: "",
+  });
+
   const handleChange = (e: any) => {
     const { name, value } = e.target;
 
     setBasicInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleEducChange = (e: any) => {
+    const { name, value } = e.target;
+
+    setEducBg((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -140,27 +160,52 @@ export default function Inputs({ infos }: InputProps) {
     toast.success("Successfully Saved!");
   }
 
-  function handleSaveBackground() {
-    console.log("bg");
+  async function handleSaveBackground() {
+    if (!userId) {
+      console.log("User not logged in");
+      return;
+    }
+
+    try {
+      await uploadEduc({
+        id: editingId || undefined,
+        userId: userId._id,
+        school: educBg.school,
+        background: educBg.background,
+        completed: educBg.completed,
+      });
+
+      toast.success("Education saved!");
+    } catch (e) {
+      toast.error("Failed to save education");
+      console.error(e);
+    }
+
+    setEducBg({
+      school: "",
+      background: "",
+      completed: "",
+    });
+    setEditingId(null);
   }
 
-  function handleSaveSkills() {
+  async function handleSaveSkills() {
     console.log("skells");
   }
 
-  function handleSaveLanguages() {
+  async function handleSaveLanguages() {
     console.log("lang");
   }
 
-  function handleSaveObjective() {
+  async function handleSaveObjective() {
     console.log("obj");
   }
 
-  function handleSaveExperience() {
+  async function handleSaveExperience() {
     console.log("expei");
   }
 
-  function handleSaveAwards() {
+  async function handleSaveAwards() {
     console.log("awards");
   }
 
@@ -311,55 +356,85 @@ export default function Inputs({ infos }: InputProps) {
 
               case "educ_bg":
                 return (
-                  <>
-                    <div className="px-5">
+                  <div className="px-5">
+                    <div>
                       <Field>
                         <Header name="Educational Background" />
-                        <div className="flex flex-col gap-5">
-                          <div>
-                            <FieldLabel>Name</FieldLabel>
-                            <Input
-                              name="name"
-                              placeholder="John Doe"
-                              value={basicInfo.name}
-                              onChange={handleChange}
-                            />
-                          </div>
+                        <div>
+                          <FieldLabel>School</FieldLabel>
+                          <Input
+                            name="school"
+                            placeholder="Name University"
+                            value={educBg.school}
+                            onChange={handleEducChange}
+                          />
+                        </div>
 
-                          <div>
-                            <FieldLabel>Email</FieldLabel>
-                            <Input
-                              name="email"
-                              type="email"
-                              placeholder="johndoe@gmail.com"
-                              value={basicInfo.email}
-                              onChange={handleChange}
-                            />
-                          </div>
+                        <div>
+                          <FieldLabel>Degree</FieldLabel>
+                          <Input
+                            name="background"
+                            placeholder="BS in Name"
+                            value={educBg.background}
+                            onChange={handleEducChange}
+                          />
+                        </div>
 
-                          <div>
-                            <FieldLabel>Contact Number</FieldLabel>
-                            <Input
-                              name="phone"
-                              placeholder="+63 912 345 6789"
-                              value={basicInfo.phone}
-                              onChange={handleChange}
-                            />
-                          </div>
-
-                          <div>
-                            <FieldLabel>Address</FieldLabel>
-                            <Input
-                              name="address"
-                              placeholder="123 Street"
-                              value={basicInfo.address}
-                              onChange={handleChange}
-                            />
-                          </div>
+                        <div>
+                          <FieldLabel>Year Completed</FieldLabel>
+                          <Input
+                            name="completed"
+                            placeholder="20XX"
+                            value={educBg.completed}
+                            onChange={handleEducChange}
+                          />
                         </div>
                       </Field>
                     </div>
-                  </>
+
+                    <Separator className="my-10" />
+                    <Field></Field>
+
+                    <div className="flex flex-col gap-3">
+                      {educ?.map((ed) => (
+                        <Item variant="outline">
+                          <ItemContent>
+                            <ItemTitle>{ed.school}</ItemTitle>
+                            <ItemDescription>{ed.background}</ItemDescription>
+                            <ItemDescription>{ed.completed}</ItemDescription>
+                          </ItemContent>
+                          <ItemActions className="flex-col">
+                            <Button
+                              size="lg"
+                              className="w-full"
+                              onClick={() => {
+                                setEducBg({
+                                  school: ed.school,
+                                  background: ed.background,
+                                  completed: ed.completed,
+                                });
+
+                                setEditingId(ed._id);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="lg"
+                              className="w-full"
+                              onClick={async () => {
+                                await deleteEduc({ id: ed._id });
+                                toast.success("Deleted!");
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </ItemActions>
+                        </Item>
+                      ))}
+                    </div>
+                  </div>
                 );
 
               case "skills":
