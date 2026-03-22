@@ -15,9 +15,9 @@ export default function SignOutButton() {
   };
 
   return (
-    <div className="text-black">
+    <div>
       {isAuthenticated && (
-        <Button variant="outline" size="lg" onClick={handleSignout}>
+        <Button variant="default" size="lg" onClick={handleSignout} className="cursor-pointer">
           Sign out
         </Button>
       )}

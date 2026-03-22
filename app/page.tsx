@@ -15,13 +15,13 @@ export default function Home() {
 
   return (
     <div className="bg-white h-screen text-black flex flex-col items-center">
-      <div className="flex justify-between p-2 min-w-screen bg-gray-200 fixed z-1">
+      <div className="flex justify-between p-2 min-w-screen bg-[#161616] fixed z-1 px-10">
         <div className="flex justify-center items-center gap-2">
           <Avatar size="lg">
             <AvatarImage src={pfp?.imageUrl} />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
-          <h1>Welcome!</h1>
+          <h1 className="text-white">Welcome!</h1>
         </div>
         <SignOutButton />
       </div>
