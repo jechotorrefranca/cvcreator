@@ -15,7 +15,7 @@ export default function SignOutButton() {
   };
 
   return (
-    <div className="text-white">
+    <div className="text-black">
       {isAuthenticated && (
         <Button variant="outline" size="lg" onClick={handleSignout}>
           Sign out

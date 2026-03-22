@@ -2,8 +2,15 @@
 import Image from "next/image";
 import SignOutButton from "@/components/SignOutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Header from "@/components/Header";
+import { Dot, Locate, LocateIcon, Mail, MapPin, Phone } from "lucide-react";
 
 export default function Home() {
+  const people = [
+    "Creola Katherine Johnson: mathematician",
+    "Mario José Molina-Pasquel Henríquez: chemist",
+  ];
+
   return (
     <div className="bg-white h-screen text-black flex flex-col items-center">
       <div className="flex justify-between p-2 min-w-screen bg-gray-200 fixed">
@@ -17,25 +24,106 @@ export default function Home() {
         <SignOutButton />
       </div>
 
-      <div className="w-204 h-264 bg-gray-100 mt-25">
-        <div className="w-full h-full flex flex-col outline relative">
-          <img
-            src="pfpDefault.png"
-            className="w-55 h-55 object-cover rounded-full bg-white absolute left-15 top-12"
-          />
+      <div className="flex justify-around w-full">
+        <div className="mt-25">This is the left side</div>
 
-          <div className="bg-[#26202B] h-[17%] w-full flex justify-end">
-            <div className="text-white text-5xl w-[60%] self-center">
-              <h1>JECHO PARAIRO TORREFRANCA</h1>
+        <div className="w-[49.61rem] h-[70.16rem] bg-gray-100 mt-25">
+          <div className="w-full h-full flex flex-col outline relative">
+            <img
+              src="pfpDefault.png"
+              className="w-55 h-55 object-cover rounded-full bg-white absolute left-15 top-12"
+            />
+
+            <div className="bg-[#26202B] h-[15%] w-full flex justify-end  font-poppins font-black">
+              <div className="text-white text-[2.5rem] leading-15 w-[55%] self-center">
+                <h1>JECHO PARAIRO TORREFRANCA</h1>
+              </div>
             </div>
-          </div>
 
-          <div className="bg-white w-full h-[80%] flex">
-            <div className="w-[40%] bg-red-300 pl-15 pt-25">left</div>
-            <div className="w-[60%] bg-blue-300 pt-5">right</div>
-          </div>
+            <div className="bg-white w-full h-[82%] flex">
+              <div className="w-[45%] bg-red-300 pl-15 pt-30 flex flex-col gap-5">
+                <div>
+                  <Header name={"My Contact"} />
 
-          <div className="bg-[#26202B] h-[3%]"></div>
+                  <div className="pt-5 flex flex-col gap-3">
+                    <div className="flex gap-3">
+                      <Mail />
+                      {"Email@gmail.com"}
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Phone />
+                      {"+63 910 147 7227"}
+                    </div>
+
+                    <div className="flex gap-3">
+                      <MapPin />
+                      {"Lolomboy, Bocaue, Bulacan"}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <Header name="Educational Background" />
+                  <div className="pt-5 flex flex-col gap-3">
+                    <ul className="list-disc pl-5 gap-5 flex flex-col leading-5">
+                      {people.map(() => (
+                        <li className="list-item">
+                          <div>
+                            <p>Tadsd</p>
+                            <p>sadsd</p>
+                            <p>sadsd</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div>
+                  <Header name="Skills" />
+                  <div className="pt-5 flex flex-col gap-3">
+                    <ul className="list-disc pl-5 leading-5">
+                      {people.map(() => (
+                        <li className="list-item">
+                          <div>
+                            <p>Tadsd</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div>
+                  <Header name="Languages" />
+                  <div className="pt-5 flex flex-col gap-3">
+                    <ul className="list-disc pl-5 leading-5">
+                      {people.map(() => (
+                        <li className="list-item">
+                          <div>
+                            <p>Tadsd</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-[55%] bg-blue-300 pt-5">
+                <div>
+                  <Header name="Objective" />
+                  <div className="pt-5">
+                    admsakf lfk admsakf lfkadmsakf lfkadmsakf lfkadmsakf lfkadmsakf lfkadmsakf lfk
+                    admsakf lfkadmsakf lfkadmsakf lfk
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#26202B] h-[3%]"></div>
+          </div>
         </div>
       </div>
     </div>
