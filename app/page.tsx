@@ -14,8 +14,8 @@ export default function Home() {
   const people = ["Creola Katherine Johnson: mathematician"];
 
   return (
-    <div className="bg-white h-screen text-black flex flex-col items-center overflow-auto">
-      <div className="flex justify-between p-2 min-w-screen bg-gray-200 fixed">
+    <div className="bg-white h-screen text-black flex flex-col items-center">
+      <div className="flex justify-between p-2 min-w-screen bg-gray-200 fixed z-1">
         <div className="flex justify-center items-center gap-2">
           <Avatar size="lg">
             <AvatarImage src={pfp?.imageUrl} />
@@ -26,7 +26,7 @@ export default function Home() {
         <SignOutButton />
       </div>
 
-      <div className="flex justify-around w-full">
+      <div className="flex justify-around p-5 w-full overflow-auto">
         <div className="mt-25">
           <Inputs />
         </div>
