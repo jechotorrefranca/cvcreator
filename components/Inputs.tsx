@@ -212,7 +212,9 @@ export default function Inputs() {
               default:
                 return (
                   <>
-                    <p>ala laman</p>
+                    <div className="pl-5">
+                      <Header name="No Suitable Object" />
+                    </div>
                   </>
                 );
             }
