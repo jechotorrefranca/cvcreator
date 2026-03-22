@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import Header from "./Header";
 import { Button } from "./ui/button";
 import {
@@ -11,12 +11,24 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { mutation } from "@/convex/_generated/server";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export default function Inputs() {
+  const generateUploadUrl = useMutation(api.mutations.mutations.generateUploadUrl);
+  const uploadImage = useMutation(api.mutations.mutations.upsertImage);
+  const userId = useQuery(api.query.queries.getUser);
+  const pfp = useQuery(api.query.queries.getPfp, userId ? { userId: userId._id } : "skip");
+
+  const imageInput = useRef<HTMLInputElement>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+
   const [currentSelected, setCurrentSelected] = useState("");
 
   const handleSave = () => {
-    console.log("AAAAAAAAAAAAAAa", currentSelected);
+    console.log("AAAAAAAAAAAAAAa", selectedImage);
 
     switch (currentSelected) {
       case "pic":
@@ -56,8 +68,25 @@ export default function Inputs() {
     }
   };
 
-  function handleSavePic() {
-    console.log("pik");
+  async function handleSavePic() {
+    if (!userId) {
+      console.log("User not logged in");
+      return;
+    }
+
+    const postUrl = await generateUploadUrl();
+
+    const result = await fetch(postUrl, {
+      method: "POST",
+      headers: { "Content-Type": selectedImage!.type },
+      body: selectedImage,
+    });
+    const { storageId } = await result.json();
+
+    await uploadImage({ userId: userId._id, storageId });
+
+    setSelectedImage(null);
+    imageInput.current!.value = "";
   }
 
   function handleSaveInformation() {
@@ -143,12 +172,51 @@ export default function Inputs() {
 
         <SheetContent showCloseButton={false} side="left">
           <SheetHeader>
-            <SheetTitle>No Close Button</SheetTitle>
+            <SheetTitle>
+              <p className="text-2xl font-bold">Edit Resume</p>
+            </SheetTitle>
             <SheetDescription>
-              This sheet doesn&apos;t have a close button in the top-right corner. Click outside to
-              close.
+              Make changes to your resume here. Click save when you're done.
             </SheetDescription>
           </SheetHeader>
+          {(() => {
+            switch (currentSelected) {
+              case "pic":
+                return (
+                  <>
+                    <div>
+                      <div className="pl-5">
+                        <Header name="Upload Picture" />
+                      </div>
+
+                      <div className="pt-5 flex flex-col gap-5 items-center">
+                        <img
+                          src={selectedImage ? URL.createObjectURL(selectedImage) : pfp?.imageUrl}
+                          className="w-55 h-55 object-cover rounded-full bg-white"
+                        />
+                        <div className="w-fit">
+                          <Button>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              ref={imageInput}
+                              onChange={(event) => setSelectedImage(event.target.files![0])}
+                            />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+
+              default:
+                return (
+                  <>
+                    <p>ala laman</p>
+                  </>
+                );
+            }
+          })()}
 
           <SheetFooter>
             <Button type="submit" onClick={handleSave}>

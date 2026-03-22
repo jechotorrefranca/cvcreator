@@ -5,8 +5,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Header from "@/components/Header";
 import { Mail, MapPin, Phone } from "lucide-react";
 import Inputs from "@/components/Inputs";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export default function Home() {
+  const userId = useQuery(api.query.queries.getUser);
+  const pfp = useQuery(api.query.queries.getPfp, userId ? { userId: userId._id } : "skip");
   const people = ["Creola Katherine Johnson: mathematician"];
 
   return (
@@ -14,7 +18,7 @@ export default function Home() {
       <div className="flex justify-between p-2 min-w-screen bg-gray-200 fixed">
         <div className="flex justify-center items-center gap-2">
           <Avatar size="lg">
-            <AvatarImage src="https://wwwimage-us.pplusstatic.com/thumbnails/photos/w1800-q80/promotion/01_spc_collection_us_july2025_coh_poster_stan.jpg?format=webp" />
+            <AvatarImage src={pfp?.imageUrl} />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
           <h1>Welcome!</h1>
@@ -30,7 +34,7 @@ export default function Home() {
         <div className="w-[49.61rem] h-[70.16rem] bg-gray-100 mt-25">
           <div className="w-full h-full flex flex-col outline relative">
             <img
-              src="pfpDefault.png"
+              src={pfp?.imageUrl}
               className="w-55 h-55 object-cover rounded-full bg-white absolute left-18 top-12"
             />
 
@@ -41,7 +45,7 @@ export default function Home() {
             </div>
 
             <div className="bg-white w-full h-[82%] flex">
-              <div className="w-[45%] bg-red-300 pl-15 pt-30 flex flex-col gap-5">
+              <div className="w-[45%] pl-15 pt-30 flex flex-col gap-5">
                 <div>
                   <Header name={"My Contact"} />
 
@@ -111,7 +115,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="w-[55%] bg-blue-300 pt-5 flex flex-col gap-5">
+              <div className="w-[55%] pt-5 flex flex-col gap-5">
                 <div>
                   <Header name="Objective" />
                   <div className="pt-5">

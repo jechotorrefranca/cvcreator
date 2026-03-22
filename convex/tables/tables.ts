@@ -6,16 +6,25 @@ export const basicInfo = defineTable({
   name: v.string(),
   email: v.string(),
   contactNumber: v.string(),
+  location: v.string(),
   creation_date: v.number(),
   updated_at: v.number(),
 });
+
+export const images = defineTable({
+  userId: v.id("users"),
+  imageId: v.id("_storage"),
+  imageUrl: v.string(),
+  creation_date: v.number(),
+  updated_at: v.number(),
+}).index("by_userId", ["userId"]);
 
 export const objective = defineTable({
   userId: v.id("users"),
   description: v.string(),
   creation_date: v.number(),
   updated_at: v.number(),
-});
+}).index("by_userId", ["userId"]);
 
 export const educBackground = defineTable({
   userId: v.id("users"),
@@ -24,14 +33,14 @@ export const educBackground = defineTable({
   completed: v.string(),
   creation_date: v.number(),
   updated_at: v.number(),
-});
+}).index("by_userId", ["userId"]);
 
 export const skills = defineTable({
   userId: v.id("users"),
   skill: v.string(),
   creation_date: v.number(),
   updated_at: v.number(),
-});
+}).index("by_userId", ["userId"]);
 
 export const languages = defineTable({
   userId: v.id("users"),
@@ -45,31 +54,31 @@ export const languages = defineTable({
   ),
   creation_date: v.number(),
   updated_at: v.number(),
-});
+}).index("by_userId", ["userId"]);
 
 export const experience = defineTable({
-    userId: v.id("users"),
-    company: v.string(),
-    position: v.string(),
-    starting_date: v.number(),
-    end_date: v.union(v.number(), v.string()),
-    creation_date: v.number(),
-    updated_at: v.number(),
-})
+  userId: v.id("users"),
+  company: v.string(),
+  position: v.string(),
+  starting_date: v.number(),
+  end_date: v.union(v.number(), v.string()),
+  creation_date: v.number(),
+  updated_at: v.number(),
+}).index("by_userId", ["userId"]);
 
 export const keyResponsibilities = defineTable({
-    userId: v.id("users"),
-    experienceId: v.id("experience"),
-    description: v.string(),
-    creation_date: v.number(),
-    updated_at: v.number(),
-})
+  userId: v.id("users"),
+  experienceId: v.id("experience"),
+  description: v.string(),
+  creation_date: v.number(),
+  updated_at: v.number(),
+}).index("by_userId", ["userId"]);
 
 export const awards = defineTable({
-    userId: v.id("users"),
-    starting_date: v.number(),
-    end_date: v.number(),
-    award: v.string(),
-    creation_date: v.number(),
-    updated_at: v.number(),
-})
+  userId: v.id("users"),
+  starting_date: v.number(),
+  end_date: v.number(),
+  award: v.string(),
+  creation_date: v.number(),
+  updated_at: v.number(),
+}).index("by_userId", ["userId"]);

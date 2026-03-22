@@ -10,6 +10,8 @@
 
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
+import type * as mutations_mutations from "../mutations/mutations.js";
+import type * as query_queries from "../query/queries.js";
 import type * as tables_tables from "../tables/tables.js";
 
 import type {
@@ -21,6 +23,8 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   http: typeof http;
+  "mutations/mutations": typeof mutations_mutations;
+  "query/queries": typeof query_queries;
   "tables/tables": typeof tables_tables;
 }>;
 

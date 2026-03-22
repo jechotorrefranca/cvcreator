@@ -1,4 +1,14 @@
-import { basicInfo, objective, educBackground, skills, languages, experience, keyResponsibilities, awards } from './tables/tables';
+import {
+  basicInfo,
+  objective,
+  educBackground,
+  skills,
+  languages,
+  experience,
+  keyResponsibilities,
+  awards,
+  images,
+} from "./tables/tables";
 import { defineSchema } from "convex/server";
 import { authTables } from "@convex-dev/auth/server";
 
@@ -6,8 +16,9 @@ import { authTables } from "@convex-dev/auth/server";
 // requires indexes defined on `authTables`.
 // The schema provides more precise TypeScript types.
 export default defineSchema({
-  ...authTables, 
+  ...authTables,
   basicInfo,
+  images,
   objective,
   educBackground,
   skills,
