@@ -9,7 +9,7 @@ export const basicInfo = defineTable({
   location: v.string(),
   creation_date: v.number(),
   updated_at: v.number(),
-});
+}).index("by_userId", ["userId"]);
 
 export const images = defineTable({
   userId: v.id("users"),
