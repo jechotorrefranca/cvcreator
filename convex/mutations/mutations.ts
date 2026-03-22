@@ -1,3 +1,4 @@
+import { skills } from "./../tables/tables";
 import { v } from "convex/values";
 import { mutation } from "../_generated/server";
 
@@ -142,50 +143,174 @@ export const upsertEducBackground = mutation({
   },
 });
 
-// export const skills = defineTable({
-//   userId: v.id("users"),
-//   skill: v.string(),
-//   creation_date: v.number(),
-//   updated_at: v.number(),
-// }).index("by_userId", ["userId"]);
+export const upsertSkills = mutation({
+  args: {
+    userId: v.id("users"),
+    skill: v.string(),
+  },
 
-// export const languages = defineTable({
-//   userId: v.id("users"),
-//   language: v.string(),
-//   expertise: v.union(
-//     v.literal("Beginner"),
-//     v.literal("Intermediate"),
-//     v.literal("Advanced"),
-//     v.literal("Proficient"),
-//     v.literal("Native"),
-//   ),
-//   creation_date: v.number(),
-//   updated_at: v.number(),
-// }).index("by_userId", ["userId"]);
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("skills")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .unique();
 
-// export const experience = defineTable({
-//   userId: v.id("users"),
-//   company: v.string(),
-//   position: v.string(),
-//   starting_date: v.number(),
-//   end_date: v.union(v.number(), v.string()),
-//   creation_date: v.number(),
-//   updated_at: v.number(),
-// }).index("by_userId", ["userId"]);
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        skill: args.skill,
+        updated_at: Date.now(),
+      });
+      return;
+    }
 
-// export const keyResponsibilities = defineTable({
-//   userId: v.id("users"),
-//   experienceId: v.id("experience"),
-//   description: v.string(),
-//   creation_date: v.number(),
-//   updated_at: v.number(),
-// }).index("by_userId", ["userId"]);
+    await ctx.db.insert("skills", {
+      userId: args.userId,
+      skill: args.skill,
+      creation_date: Date.now(),
+      updated_at: Date.now(),
+    });
+  },
+});
 
-// export const awards = defineTable({
-//   userId: v.id("users"),
-//   starting_date: v.number(),
-//   end_date: v.number(),
-//   award: v.string(),
-//   creation_date: v.number(),
-//   updated_at: v.number(),
-// }).index("by_userId", ["userId"]);
+export const upsertLanguages = mutation({
+  args: {
+    userId: v.id("users"),
+    language: v.string(),
+    expertise: v.union(
+      v.literal("Beginner"),
+      v.literal("Intermediate"),
+      v.literal("Advanced"),
+      v.literal("Proficient"),
+      v.literal("Native"),
+    ),
+  },
+
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("languages")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .unique();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        language: args.language,
+        expertise: args.expertise,
+        updated_at: Date.now(),
+      });
+      return;
+    }
+
+    await ctx.db.insert("languages", {
+      userId: args.userId,
+      language: args.language,
+      expertise: args.expertise,
+      creation_date: Date.now(),
+      updated_at: Date.now(),
+    });
+  },
+});
+
+export const upsertExperience = mutation({
+  args: {
+    userId: v.id("users"),
+    company: v.string(),
+    position: v.string(),
+    starting_date: v.number(),
+    end_date: v.union(v.number(), v.string()),
+    // update: v.boolean()
+  },
+
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("experience")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .unique();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        company: args.company,
+        position: args.position,
+        starting_date: args.starting_date,
+        end_date: args.end_date,
+        updated_at: Date.now(),
+      });
+      return;
+    }
+
+    await ctx.db.insert("experience", {
+      userId: args.userId,
+      company: args.company,
+      position: args.position,
+      starting_date: args.starting_date,
+      end_date: args.end_date,
+      creation_date: Date.now(),
+      updated_at: Date.now(),
+    });
+  },
+});
+
+export const upsertKeyResponsibilities = mutation({
+  args: {
+    userId: v.id("users"),
+    experienceId: v.id("experience"),
+    description: v.string(),
+  },
+
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("keyResponsibilities")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .unique();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        description: args.description,
+        updated_at: Date.now(),
+      });
+      return;
+    }
+
+    await ctx.db.insert("keyResponsibilities", {
+      userId: args.userId,
+      experienceId: args.experienceId,
+      description: args.description,
+      creation_date: Date.now(),
+      updated_at: Date.now(),
+    });
+  },
+});
+
+export const upsertAwards = mutation({
+  args: {
+    userId: v.id("users"),
+    starting_date: v.number(),
+    end_date: v.number(),
+    award: v.string(),
+  },
+
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("awards")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .unique();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        starting_date: args.starting_date,
+        end_date: args.end_date,
+        award: args.award,
+        updated_at: Date.now(),
+      });
+      return;
+    }
+
+    await ctx.db.insert("awards", {
+      userId: args.userId,
+      starting_date: args.starting_date,
+      end_date: args.end_date,
+      award: args.award,
+      creation_date: Date.now(),
+      updated_at: Date.now(),
+    });
+  },
+});
