@@ -20,10 +20,8 @@ export const upsertImage = mutation({
     if (!url) throw new Error("Failed to get image URL");
 
     if (existing) {
-      // 1. Delete the old file from storage using its ID
       await ctx.storage.delete(existing.imageId);
 
-      // 2. Update the document with the new storage ID and URL
       await ctx.db.patch(existing._id, {
         imageId: args.storageId,
         imageUrl: url,
@@ -32,7 +30,6 @@ export const upsertImage = mutation({
       return;
     }
 
-    // Insert new record if none exists
     await ctx.db.insert("images", {
       userId: args.userId,
       imageId: args.storageId,
