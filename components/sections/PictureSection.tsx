@@ -38,12 +38,15 @@ export default function PictureSection() {
           src={selectedImage ? URL.createObjectURL(selectedImage) : pfp?.imageUrl}
           className="w-55 h-55 object-cover rounded-full bg-white border border-black"
         />
-        <input
-          type="file"
-          accept="image/*"
-          ref={imageInput}
-          onChange={(e) => setSelectedImage(e.target.files![0])}
-        />
+        <Button>
+          <input
+            type="file"
+            accept="image/*"
+            ref={imageInput}
+            onChange={(e) => setSelectedImage(e.target.files![0])}
+          />
+        </Button>
+
         <Button onClick={handleSave} disabled={!selectedImage}>
           Upload
         </Button>
