@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Header from "./Header";
 import { Button } from "./ui/button";
 import {
@@ -11,256 +11,79 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Field, FieldLabel } from "./ui/field";
-import { Input } from "./ui/input";
-import { toast, Toaster } from "sonner";
+import { Toaster } from "sonner";
 import { BasicInfo, Educ } from "./types";
-import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from "./ui/item";
-import { Separator } from "./ui/separator";
-import { Id } from "@/convex/_generated/dataModel";
+import PictureSection from "./sections/PictureSection";
+import BasicInfoSection from "./sections/BasicInfoSection";
+import EducationSection from "./sections/EducationSection";
+import SkillsSection from "./sections/SkillsSection";
+import LanguagesSection from "./sections/LanguagesSection";
+import ObjectiveSection from "./sections/ObjectiveSection";
+import AwardsSection from "./sections/AwardsSection";
+import ExperienceSection from "./sections/ExperienceSection";
+
+type Section =
+  | "pic"
+  | "basic_info"
+  | "educ_bg"
+  | "skills"
+  | "language"
+  | "objective"
+  | "exp"
+  | "awards";
+
+const SECTIONS: { key: Section; label: string }[] = [
+  { key: "pic", label: "Picture" },
+  { key: "basic_info", label: "Basic Information" },
+  { key: "educ_bg", label: "Education Background" },
+  { key: "skills", label: "Skills" },
+  { key: "language", label: "Languages" },
+  { key: "objective", label: "Objective" },
+  { key: "exp", label: "Professional Experience" },
+  { key: "awards", label: "Awards and Recognitions" },
+];
 
 interface InputProps {
   infos?: BasicInfo | null;
-  educ?: Educ[] | null | undefined;
+  educ?: Educ[] | null;
+}
+
+function SectionContent({ section, infos, educ }: { section: Section } & InputProps) {
+  switch (section) {
+    case "pic":
+      return <PictureSection />;
+    case "basic_info":
+      return <BasicInfoSection infos={infos} />;
+    case "educ_bg":
+      return <EducationSection educ={educ} />;
+    case "skills":
+      return <SkillsSection />;
+    case "language":
+      return <LanguagesSection />;
+    case "objective":
+      return <ObjectiveSection />;
+    case "exp":
+      return <ExperienceSection />;
+    case "awards":
+      return <AwardsSection />;
+  }
 }
 
 export default function Inputs({ infos, educ }: InputProps) {
-  const generateUploadUrl = useMutation(api.mutations.mutations.generateUploadUrl);
-  const uploadImage = useMutation(api.mutations.mutations.upsertImage);
-  const uploadInfo = useMutation(api.mutations.mutations.upsertBasicInfo);
-  const uploadEduc = useMutation(api.mutations.mutations.upsertEducBackground);
-  const deleteEduc = useMutation(api.mutations.mutations.deleteEducBackground);
-
-  const userId = useQuery(api.query.queries.getUser);
-  const pfp = useQuery(api.query.queries.getPfp, userId ? { userId: userId._id } : "skip");
-
-  const imageInput = useRef<HTMLInputElement>(null);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-
-  const [currentSelected, setCurrentSelected] = useState("");
-  const [editingId, setEditingId] = useState<Id<"educBackground"> | null>(null);
-
-  //   Basic info
-  const [basicInfo, setBasicInfo] = useState({
-    name: infos?.name || "",
-    email: infos?.email || "",
-    phone: infos?.contactNumber || "",
-    address: infos?.location || "",
-  });
-
-  const [educBg, setEducBg] = useState({
-    school: "",
-    background: "",
-    completed: "",
-  });
-
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-
-    setBasicInfo((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleEducChange = (e: any) => {
-    const { name, value } = e.target;
-
-    setEducBg((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSave = () => {
-    console.log("AAAAAAAAAAAAAAa", selectedImage);
-
-    switch (currentSelected) {
-      case "pic":
-        handleSavePic();
-        return;
-
-      case "basic_info":
-        handleSaveInformation();
-        return;
-
-      case "educ_bg":
-        handleSaveBackground();
-        return;
-
-      case "skills":
-        handleSaveSkills();
-        return;
-
-      case "language":
-        handleSaveLanguages();
-        return;
-
-      case "objective":
-        handleSaveObjective();
-        return;
-
-      case "exp":
-        handleSaveExperience();
-        return;
-
-      case "awards":
-        handleSaveAwards();
-        return;
-
-      default:
-        return null;
-    }
-  };
-
-  async function handleSavePic() {
-    if (!userId) {
-      console.log("User not logged in");
-      return;
-    }
-
-    const postUrl = await generateUploadUrl();
-
-    const result = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": selectedImage!.type },
-      body: selectedImage,
-    });
-    const { storageId } = await result.json();
-
-    await uploadImage({ userId: userId._id, storageId });
-
-    setSelectedImage(null);
-    imageInput.current!.value = "";
-  }
-
-  async function handleSaveInformation() {
-    if (!userId) {
-      console.log("User not logged in");
-      return;
-    }
-
-    try {
-      await uploadInfo({
-        userId: userId._id,
-        name: basicInfo.name,
-        email: basicInfo.email,
-        contactNumber: basicInfo.phone,
-        location: basicInfo.address,
-      });
-    } catch (e) {
-      toast.error("Failed to Save");
-      console.error(e);
-    }
-
-    console.log("sucecss");
-
-    toast.success("Successfully Saved!");
-  }
-
-  async function handleSaveBackground() {
-    if (!userId) {
-      console.log("User not logged in");
-      return;
-    }
-
-    try {
-      await uploadEduc({
-        id: editingId || undefined,
-        userId: userId._id,
-        school: educBg.school,
-        background: educBg.background,
-        completed: educBg.completed,
-      });
-
-      toast.success("Education saved!");
-    } catch (e) {
-      toast.error("Failed to save education");
-      console.error(e);
-    }
-
-    setEducBg({
-      school: "",
-      background: "",
-      completed: "",
-    });
-    setEditingId(null);
-  }
-
-  async function handleSaveSkills() {
-    console.log("skells");
-  }
-
-  async function handleSaveLanguages() {
-    console.log("lang");
-  }
-
-  async function handleSaveObjective() {
-    console.log("obj");
-  }
-
-  async function handleSaveExperience() {
-    console.log("expei");
-  }
-
-  async function handleSaveAwards() {
-    console.log("awards");
-  }
+  const [current, setCurrent] = useState<Section>("basic_info");
 
   return (
     <div className="flex flex-col gap-3">
       <Header name="Information Sheet" />
 
       <Sheet>
-        <SheetTrigger asChild>
-          <Button size="lg" onClick={() => setCurrentSelected("pic")}>
-            Picture
-          </Button>
-        </SheetTrigger>
-
-        <SheetTrigger asChild>
-          <Button size="lg" onClick={() => setCurrentSelected("basic_info")}>
-            Basic Information
-          </Button>
-        </SheetTrigger>
-
-        <SheetTrigger asChild>
-          <Button size="lg" onClick={() => setCurrentSelected("educ_bg")}>
-            Education Background
-          </Button>
-        </SheetTrigger>
-
-        <SheetTrigger asChild>
-          <Button size="lg" onClick={() => setCurrentSelected("skills")}>
-            Skills
-          </Button>
-        </SheetTrigger>
-
-        <SheetTrigger asChild>
-          <Button size="lg" onClick={() => setCurrentSelected("language")}>
-            Languages
-          </Button>
-        </SheetTrigger>
-
-        <SheetTrigger asChild>
-          <Button size="lg" onClick={() => setCurrentSelected("objective")}>
-            Objective
-          </Button>
-        </SheetTrigger>
-
-        <SheetTrigger asChild>
-          <Button size="lg" onClick={() => setCurrentSelected("exp")}>
-            Professional Experience
-          </Button>
-        </SheetTrigger>
-
-        <SheetTrigger asChild>
-          <Button size="lg" onClick={() => setCurrentSelected("awards")}>
-            Awards and Recognitions
-          </Button>
-        </SheetTrigger>
+        {SECTIONS.map(({ key, label }) => (
+          <SheetTrigger asChild key={key}>
+            <Button size="lg" onClick={() => setCurrent(key)}>
+              {label}
+            </Button>
+          </SheetTrigger>
+        ))}
 
         <SheetContent showCloseButton={false} side="left">
           <SheetHeader>
@@ -271,253 +94,19 @@ export default function Inputs({ infos, educ }: InputProps) {
               Make changes to your resume here. Click save when you're done.
             </SheetDescription>
           </SheetHeader>
-          {(() => {
-            switch (currentSelected) {
-              case "pic":
-                return (
-                  <>
-                    <div>
-                      <div className="pl-5">
-                        <Header name="Upload Picture" />
-                      </div>
 
-                      <div className="pt-5 flex flex-col gap-5 items-center">
-                        <img
-                          src={selectedImage ? URL.createObjectURL(selectedImage) : pfp?.imageUrl}
-                          className="w-55 h-55 object-cover rounded-full bg-white  border border-black"
-                        />
-                        <div className="w-fit">
-                          <Button>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              ref={imageInput}
-                              onChange={(event) => setSelectedImage(event.target.files![0])}
-                            />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                );
-
-              case "basic_info":
-                return (
-                  <>
-                    <div className="px-5">
-                      <Field>
-                        <Header name="Basic Information" />
-                        <div className="flex flex-col gap-5">
-                          <div>
-                            <FieldLabel>Name</FieldLabel>
-                            <Input
-                              name="name"
-                              placeholder="John Doe"
-                              value={basicInfo.name}
-                              onChange={handleChange}
-                            />
-                          </div>
-
-                          <div>
-                            <FieldLabel>Email</FieldLabel>
-                            <Input
-                              name="email"
-                              type="email"
-                              placeholder="johndoe@gmail.com"
-                              value={basicInfo.email}
-                              onChange={handleChange}
-                            />
-                          </div>
-
-                          <div>
-                            <FieldLabel>Contact Number</FieldLabel>
-                            <Input
-                              name="phone"
-                              placeholder="+63 912 345 6789"
-                              value={basicInfo.phone}
-                              onChange={handleChange}
-                            />
-                          </div>
-
-                          <div>
-                            <FieldLabel>Address</FieldLabel>
-                            <Input
-                              name="address"
-                              placeholder="123 Street"
-                              value={basicInfo.address}
-                              onChange={handleChange}
-                            />
-                          </div>
-                        </div>
-                      </Field>
-                    </div>
-                  </>
-                );
-
-              case "educ_bg":
-                return (
-                  <div className="px-5">
-                    <div>
-                      <Field>
-                        <Header name="Educational Background" />
-                        <div>
-                          <FieldLabel>School</FieldLabel>
-                          <Input
-                            name="school"
-                            placeholder="Name University"
-                            value={educBg.school}
-                            onChange={handleEducChange}
-                          />
-                        </div>
-
-                        <div>
-                          <FieldLabel>Degree</FieldLabel>
-                          <Input
-                            name="background"
-                            placeholder="BS in Name"
-                            value={educBg.background}
-                            onChange={handleEducChange}
-                          />
-                        </div>
-
-                        <div>
-                          <FieldLabel>Year Completed</FieldLabel>
-                          <Input
-                            name="completed"
-                            placeholder="20XX"
-                            value={educBg.completed}
-                            onChange={handleEducChange}
-                          />
-                        </div>
-                      </Field>
-                    </div>
-
-                    <Separator className="my-10" />
-                    <Field></Field>
-
-                    <div className="flex flex-col gap-3">
-                      {educ?.map((ed) => (
-                        <Item variant="outline">
-                          <ItemContent>
-                            <ItemTitle>{ed.school}</ItemTitle>
-                            <ItemDescription>{ed.background}</ItemDescription>
-                            <ItemDescription>{ed.completed}</ItemDescription>
-                          </ItemContent>
-                          <ItemActions className="flex-col">
-                            <Button
-                              size="lg"
-                              className="w-full"
-                              onClick={() => {
-                                setEducBg({
-                                  school: ed.school,
-                                  background: ed.background,
-                                  completed: ed.completed,
-                                });
-
-                                setEditingId(ed._id);
-                              }}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="lg"
-                              className="w-full"
-                              onClick={async () => {
-                                await deleteEduc({ id: ed._id });
-                                toast.success("Deleted!");
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </ItemActions>
-                        </Item>
-                      ))}
-                    </div>
-                  </div>
-                );
-
-              case "skills":
-                return (
-                  <>
-                    <div className="px-5">
-                      <Field>
-                        <Header name="Skills" />
-                        <div className="flex flex-col gap-5"></div>
-                      </Field>
-                    </div>
-                  </>
-                );
-
-              case "language":
-                return (
-                  <>
-                    <div className="px-5">
-                      <Field>
-                        <Header name="Languages" />
-                        <div className="flex flex-col gap-5"></div>
-                      </Field>
-                    </div>
-                  </>
-                );
-
-              case "objective":
-                return (
-                  <>
-                    <div className="px-5">
-                      <Field>
-                        <Header name="Objective" />
-                        <div className="flex flex-col gap-5"></div>
-                      </Field>
-                    </div>
-                  </>
-                );
-
-              case "exp":
-                return (
-                  <>
-                    <div className="px-5">
-                      <Field>
-                        <Header name="Professional Experience" />
-                        <div className="flex flex-col gap-5"></div>
-                      </Field>
-                    </div>
-                  </>
-                );
-
-              case "awards":
-                return (
-                  <>
-                    <div className="px-5">
-                      <Field>
-                        <Header name="Awards and Recognitions" />
-                        <div className="flex flex-col gap-5"></div>
-                      </Field>
-                    </div>
-                  </>
-                );
-
-              default:
-                return (
-                  <>
-                    <div className="pl-5">
-                      <Header name="No Suitable Object" />
-                    </div>
-                  </>
-                );
-            }
-          })()}
+          <div className="overflow-y-auto flex-1 py-2">
+            <SectionContent section={current} infos={infos} educ={educ} />
+          </div>
 
           <SheetFooter>
-            <Button type="submit" onClick={handleSave}>
-              Save changes
-            </Button>
             <SheetClose asChild>
               <Button variant="outline">Close</Button>
             </SheetClose>
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
       <Toaster position="top-center" />
     </div>
   );

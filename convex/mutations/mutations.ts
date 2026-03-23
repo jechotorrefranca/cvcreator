@@ -1,4 +1,3 @@
-import { skills } from "./../tables/tables";
 import { v } from "convex/values";
 import { mutation } from "../_generated/server";
 
@@ -10,7 +9,6 @@ export const generateUploadUrl = mutation({
 
 export const upsertImage = mutation({
   args: { userId: v.id("users"), storageId: v.id("_storage") },
-
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("images")
@@ -22,7 +20,6 @@ export const upsertImage = mutation({
 
     if (existing) {
       await ctx.storage.delete(existing.imageId);
-
       await ctx.db.patch(existing._id, {
         imageId: args.storageId,
         imageUrl: url,
@@ -49,7 +46,6 @@ export const upsertBasicInfo = mutation({
     contactNumber: v.string(),
     location: v.string(),
   },
-
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("basicInfo")
@@ -80,11 +76,7 @@ export const upsertBasicInfo = mutation({
 });
 
 export const upsertObjective = mutation({
-  args: {
-    userId: v.id("users"),
-    description: v.string(),
-  },
-
+  args: { userId: v.id("users"), description: v.string() },
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("objective")
@@ -118,7 +110,6 @@ export const upsertEducBackground = mutation({
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-
     if (args.id) {
       await ctx.db.patch(args.id, {
         school: args.school,
@@ -139,183 +130,198 @@ export const upsertEducBackground = mutation({
   },
 });
 
-export const upsertSkills = mutation({
+export const deleteEducBackground = mutation({
+  args: { id: v.id("educBackground") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
+// ── Skills ──────────────────────────────────────────────────────────────────
+
+export const upsertSkill = mutation({
   args: {
+    id: v.optional(v.id("skills")),
     userId: v.id("users"),
     skill: v.string(),
   },
-
   handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("skills")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .unique();
-
-    if (existing) {
-      await ctx.db.patch(existing._id, {
+    const now = Date.now();
+    if (args.id) {
+      await ctx.db.patch(args.id, { skill: args.skill, updated_at: now });
+    } else {
+      await ctx.db.insert("skills", {
+        userId: args.userId,
         skill: args.skill,
-        updated_at: Date.now(),
+        creation_date: now,
+        updated_at: now,
       });
-      return;
     }
-
-    await ctx.db.insert("skills", {
-      userId: args.userId,
-      skill: args.skill,
-      creation_date: Date.now(),
-      updated_at: Date.now(),
-    });
   },
 });
 
-export const upsertLanguages = mutation({
+export const deleteSkill = mutation({
+  args: { id: v.id("skills") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
+// ── Languages ────────────────────────────────────────────────────────────────
+
+const expertiseValues = v.union(
+  v.literal("Beginner"),
+  v.literal("Intermediate"),
+  v.literal("Advanced"),
+  v.literal("Proficient"),
+  v.literal("Native"),
+);
+
+export const upsertLanguage = mutation({
   args: {
+    id: v.optional(v.id("languages")),
     userId: v.id("users"),
     language: v.string(),
-    expertise: v.union(
-      v.literal("Beginner"),
-      v.literal("Intermediate"),
-      v.literal("Advanced"),
-      v.literal("Proficient"),
-      v.literal("Native"),
-    ),
+    expertise: expertiseValues,
   },
-
   handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("languages")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .unique();
-
-    if (existing) {
-      await ctx.db.patch(existing._id, {
+    const now = Date.now();
+    if (args.id) {
+      await ctx.db.patch(args.id, {
         language: args.language,
         expertise: args.expertise,
-        updated_at: Date.now(),
+        updated_at: now,
       });
-      return;
+    } else {
+      await ctx.db.insert("languages", {
+        userId: args.userId,
+        language: args.language,
+        expertise: args.expertise,
+        creation_date: now,
+        updated_at: now,
+      });
     }
-
-    await ctx.db.insert("languages", {
-      userId: args.userId,
-      language: args.language,
-      expertise: args.expertise,
-      creation_date: Date.now(),
-      updated_at: Date.now(),
-    });
   },
 });
+
+export const deleteLanguage = mutation({
+  args: { id: v.id("languages") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
+// ── Experience ───────────────────────────────────────────────────────────────
 
 export const upsertExperience = mutation({
   args: {
+    id: v.optional(v.id("experience")),
     userId: v.id("users"),
     company: v.string(),
     position: v.string(),
-    starting_date: v.number(),
-    end_date: v.union(v.number(), v.string()),
-    // update: v.boolean()
+    starting_date: v.optional(v.string()),
+    end_date: v.optional(v.string()),
   },
-
   handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("experience")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .unique();
-
-    if (existing) {
-      await ctx.db.patch(existing._id, {
+    const now = Date.now();
+    if (args.id) {
+      await ctx.db.patch(args.id, {
         company: args.company,
         position: args.position,
         starting_date: args.starting_date,
         end_date: args.end_date,
-        updated_at: Date.now(),
+        updated_at: now,
       });
-      return;
+    } else {
+      await ctx.db.insert("experience", {
+        userId: args.userId,
+        company: args.company,
+        position: args.position,
+        starting_date: args.starting_date,
+        end_date: args.end_date,
+        creation_date: now,
+        updated_at: now,
+      });
     }
-
-    await ctx.db.insert("experience", {
-      userId: args.userId,
-      company: args.company,
-      position: args.position,
-      starting_date: args.starting_date,
-      end_date: args.end_date,
-      creation_date: Date.now(),
-      updated_at: Date.now(),
-    });
+  },
+});
+export const deleteExperience = mutation({
+  args: { id: v.id("experience") },
+  handler: async (ctx, args) => {
+    // also clean up responsibilities
+    const responsibilities = await ctx.db
+      .query("keyResponsibilities")
+      .withIndex("by_experienceId", (q) => q.eq("experienceId", args.id))
+      .collect();
+    await Promise.all(responsibilities.map((r) => ctx.db.delete(r._id)));
+    await ctx.db.delete(args.id);
   },
 });
 
-export const upsertKeyResponsibilities = mutation({
+export const upsertKeyResponsibility = mutation({
   args: {
+    id: v.optional(v.id("keyResponsibilities")),
     userId: v.id("users"),
     experienceId: v.id("experience"),
     description: v.string(),
   },
-
   handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("keyResponsibilities")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .unique();
-
-    if (existing) {
-      await ctx.db.patch(existing._id, {
+    const now = Date.now();
+    if (args.id) {
+      await ctx.db.patch(args.id, { description: args.description, updated_at: now });
+    } else {
+      await ctx.db.insert("keyResponsibilities", {
+        userId: args.userId,
+        experienceId: args.experienceId,
         description: args.description,
-        updated_at: Date.now(),
+        creation_date: now,
+        updated_at: now,
       });
-      return;
     }
-
-    await ctx.db.insert("keyResponsibilities", {
-      userId: args.userId,
-      experienceId: args.experienceId,
-      description: args.description,
-      creation_date: Date.now(),
-      updated_at: Date.now(),
-    });
   },
 });
 
-export const upsertAwards = mutation({
-  args: {
-    userId: v.id("users"),
-    starting_date: v.number(),
-    end_date: v.number(),
-    award: v.string(),
-  },
-
+export const deleteKeyResponsibility = mutation({
+  args: { id: v.id("keyResponsibilities") },
   handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("awards")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .unique();
+    await ctx.db.delete(args.id);
+  },
+});
 
-    if (existing) {
-      await ctx.db.patch(existing._id, {
+// ── Awards ───────────────────────────────────────────────────────────────────
+
+export const upsertAward = mutation({
+  args: {
+    id: v.optional(v.id("awards")),
+    userId: v.id("users"),
+    award: v.string(),
+    starting_date: v.optional(v.string()),
+    end_date: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    if (args.id) {
+      await ctx.db.patch(args.id, {
+        award: args.award,
         starting_date: args.starting_date,
         end_date: args.end_date,
-        award: args.award,
-        updated_at: Date.now(),
+        updated_at: now,
       });
-      return;
+    } else {
+      await ctx.db.insert("awards", {
+        userId: args.userId,
+        award: args.award,
+        starting_date: args.starting_date,
+        end_date: args.end_date,
+        creation_date: now,
+        updated_at: now,
+      });
     }
-
-    await ctx.db.insert("awards", {
-      userId: args.userId,
-      starting_date: args.starting_date,
-      end_date: args.end_date,
-      award: args.award,
-      creation_date: Date.now(),
-      updated_at: Date.now(),
-    });
   },
 });
 
-//DELETES
-export const deleteEducBackground = mutation({
-  args: {
-    id: v.id("educBackground"),
-  },
+export const deleteAward = mutation({
+  args: { id: v.id("awards") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
   },

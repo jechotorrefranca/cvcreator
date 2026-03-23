@@ -60,8 +60,8 @@ export const experience = defineTable({
   userId: v.id("users"),
   company: v.string(),
   position: v.string(),
-  starting_date: v.number(),
-  end_date: v.union(v.number(), v.string()),
+  starting_date: v.optional(v.string()),
+  end_date: v.optional(v.string()),
   creation_date: v.number(),
   updated_at: v.number(),
 }).index("by_userId", ["userId"]);
@@ -78,8 +78,8 @@ export const keyResponsibilities = defineTable({
 
 export const awards = defineTable({
   userId: v.id("users"),
-  starting_date: v.number(),
-  end_date: v.number(),
+  starting_date: v.optional(v.string()),
+  end_date: v.optional(v.string()),
   award: v.string(),
   creation_date: v.number(),
   updated_at: v.number(),
