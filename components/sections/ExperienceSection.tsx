@@ -3,12 +3,14 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
+import { ChevronsUpDown } from "lucide-react";
 import Header from "../Header";
 import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from "../ui/item";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const EMPTY_EXP = { company: "", position: "", starting_date: "", end_date: "" };
 
@@ -27,6 +29,17 @@ export default function ExperienceSection() {
   const [respDescription, setRespDescription] = useState("");
   const [editingRespId, setEditingRespId] = useState<Id<"keyResponsibilities"> | null>(null);
   const [activeExpId, setActiveExpId] = useState<Id<"experience"> | null>(null);
+
+  // Track which experience panels are open; default all open
+  const [openExpIds, setOpenExpIds] = useState<Set<string>>(new Set());
+
+  const toggleOpen = (id: string) => {
+    setOpenExpIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
 
   const handleExpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -154,100 +167,118 @@ export default function ExperienceSection() {
         <>
           <Separator className="my-6" />
           <div className="flex flex-col gap-4">
-            {experiences.map((exp) => (
-              <div key={exp._id} className="flex flex-col gap-2">
-                <Item variant="outline">
-                  <ItemContent>
-                    <ItemTitle>{exp.company}</ItemTitle>
-                    <ItemDescription>{exp.position}</ItemDescription>
-                    <ItemDescription>
-                      {exp.starting_date} – {exp.end_date === "Present" ? "Present" : exp.end_date}
-                    </ItemDescription>
-                  </ItemContent>
-                  <ItemActions className="flex-col">
-                    <Button size="lg" className="w-full" onClick={() => handleEditExp(exp)}>
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="w-full"
-                      onClick={async () => {
-                        await deleteExp({ id: exp._id });
-                        toast.success("Deleted!");
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </ItemActions>
-                </Item>
+            {experiences.map((exp) => {
+              const isOpen = openExpIds.has(exp._id);
+              return (
+                <Collapsible
+                  key={exp._id}
+                  open={isOpen}
+                  onOpenChange={() => toggleOpen(exp._id)}
+                  className="flex flex-col gap-2 rounded"
+                >
+                  <Item variant="outline" className="bg-gray-100">
+                    <ItemContent className="">
+                      <ItemTitle>{exp.company}</ItemTitle>
+                      <ItemDescription>{exp.position}</ItemDescription>
+                      <ItemDescription>
+                        {exp.starting_date} –{" "}
+                        {exp.end_date === "Present" ? "Present" : exp.end_date}
+                      </ItemDescription>
+                    </ItemContent>
+                    <ItemActions className="flex-col">
+                      {/* Collapse toggle — clicking the chevron opens/closes responsibilities */}
+                      <CollapsibleTrigger asChild>
+                        <Button variant="default" size="icon" className="size-8 self-end">
+                          <ChevronsUpDown className="size-4" />
+                          <span className="sr-only">Toggle responsibilities</span>
+                        </Button>
+                      </CollapsibleTrigger>
+                      <Button size="lg" className="w-full" onClick={() => handleEditExp(exp)}>
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="w-full"
+                        onClick={async () => {
+                          await deleteExp({ id: exp._id });
+                          toast.success("Deleted!");
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </ItemActions>
+                  </Item>
 
-                <div className="pl-3 border-l-2 flex flex-col gap-2">
-                  <p className="text-sm font-semibold">Key Responsibilities</p>
-                  {exp.responsibilities.map((r) => (
-                    <Item variant="outline" key={r._id}>
-                      <ItemContent>
-                        <ItemDescription>{r.description}</ItemDescription>
-                      </ItemContent>
-                      <ItemActions className="flex-col">
-                        <Button
-                          size="sm"
-                          className="w-full"
-                          onClick={() => {
-                            setRespDescription(r.description);
-                            setEditingRespId(r._id);
-                            setActiveExpId(exp._id);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                          onClick={async () => {
-                            await deleteResp({ id: r._id });
-                            toast.success("Deleted!");
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </ItemActions>
-                    </Item>
-                  ))}
+                  <CollapsibleContent>
+                    <div className="pl-3 border-l-2 flex flex-col gap-2 bg-white">
+                      <p className="text-sm font-semibold">Key Responsibilities</p>
+                      {exp.responsibilities.map((r) => (
+                        <Item variant="outline" key={r._id}>
+                          <ItemContent>
+                            <ItemDescription>{r.description}</ItemDescription>
+                          </ItemContent>
+                          <ItemActions className="flex-col">
+                            <Button
+                              size="sm"
+                              className="w-full"
+                              onClick={() => {
+                                setRespDescription(r.description);
+                                setEditingRespId(r._id);
+                                setActiveExpId(exp._id);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full"
+                              onClick={async () => {
+                                await deleteResp({ id: r._id });
+                                toast.success("Deleted!");
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </ItemActions>
+                        </Item>
+                      ))}
 
-                  {activeExpId === exp._id ? (
-                    <div className="flex flex-col gap-2">
-                      <Input
-                        placeholder="e.g. Led team of 5 engineers"
-                        value={respDescription}
-                        onChange={(e) => setRespDescription(e.target.value)}
-                      />
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={handleSaveResp}>
-                          {editingRespId ? "Update" : "Add"}
+                      {activeExpId === exp._id ? (
+                        <div className="flex flex-col gap-2">
+                          <Input
+                            placeholder="e.g. Led team of 5 engineers"
+                            value={respDescription}
+                            onChange={(e) => setRespDescription(e.target.value)}
+                          />
+                          <div className="flex gap-2">
+                            <Button size="sm" onClick={handleSaveResp}>
+                              {editingRespId ? "Update" : "Add"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setActiveExpId(null);
+                                setRespDescription("");
+                                setEditingRespId(null);
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button size="sm" variant="outline" onClick={() => setActiveExpId(exp._id)}>
+                          + Add Responsibility
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setActiveExpId(null);
-                            setRespDescription("");
-                            setEditingRespId(null);
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
+                      )}
                     </div>
-                  ) : (
-                    <Button size="sm" variant="outline" onClick={() => setActiveExpId(exp._id)}>
-                      + Add Responsibility
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
+                  </CollapsibleContent>
+                </Collapsible>
+              );
+            })}
           </div>
         </>
       )}
